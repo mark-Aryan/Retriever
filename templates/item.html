@@ -1,0 +1,156 @@
+{% extends 'base.html' %}
+{% block title %}{{ item.title }} · CodeXploit Campus Desk{% endblock %}
+{% block content %}
+
+<div class="detail-wrap">
+  <div class="detail-back"><a href="{{ url_for('index') }}">← Back to Browse</a></div>
+
+  <div class="detail-grid">
+    <div class="detail-left">
+      <div class="detail-img-wrap">
+        <img src="{{ url_for('static', filename='uploads/' + item.image) }}" alt="{{ item.title }}" class="detail-img">
+        <span class="detail-badge">{{ item.category }}</span>
+        {% if item.status == 'closed' %}
+        <div class="closed-overlay">✅ Returned to Owner</div>
+        {% endif %}
+      </div>
+
+      <div class="detail-info-card">
+        <h1 class="detail-title">{{ item.title }}</h1>
+        <div class="detail-tags">
+          <span class="tag">📍 {{ item.location }}</span>
+          <span class="tag">🏷 {{ item.category }}</span>
+          <span class="tag">🕐 {{ item.created_at[:16] }}</span>
+          <span class="tag uid-tag">Item ID: {{ item.uid }}</span>
+        </div>
+        <div class="detail-desc-box">
+          <h4>Description by Finder</h4>
+          <p>{{ item.description }}</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="detail-right">
+      <div class="finder-card">
+        <div class="finder-header">Found &amp; Reported by</div>
+        <div class="finder-avatar">{{ item.uname[0].upper() }}</div>
+        <div class="finder-name">{{ item.uname }}</div>
+        <div class="finder-roll">{{ item.uroll }}</div>
+        <div class="finder-dept">{{ item.udept }}</div>
+        {% if current_user.is_authenticated and current_user.id != item.user_id %}
+        <div class="finder-contact">
+          <div class="contact-item">📞 {{ item.uphone }}</div>
+          <div class="contact-item">✉ {{ item.uemail }}</div>
+        </div>
+        {% elif not current_user.is_authenticated %}
+        <div class="contact-locked">
+          <span>🔒 Login to see contact details</span>
+          <a href="{{ url_for('login') }}" class="btn-sm">Login</a>
+        </div>
+        {% endif %}
+      </div>
+
+      {% if item.status == 'active' %}
+        {% if current_user.is_authenticated %}
+          {% if current_user.id == item.user_id %}
+          <div class="owner-panel">
+            <div class="owner-panel-title">You Posted This Item</div>
+            <button onclick="closeItem('{{ item.uid }}')" class="btn-close-item">Mark as Returned ✅</button>
+            <button onclick="deleteItem('{{ item.uid }}')" class="btn-delete-item">Delete This Post 🗑</button>
+          </div>
+          {% elif user_reached %}
+          <div class="reached-box">
+            <span>✅ Reach-out submitted successfully.</span>
+            <p>The finder has been notified and will review your description. If it matches, they will contact you directly.</p>
+          </div>
+          {% else %}
+          <div class="reachout-box">
+            <h3>Is This Yours? Reach Out</h3>
+            <p class="reachout-hint">Provide a detailed description to prove ownership. Include specific features, contents, colour, brand, any marks or damage, and when/where you last had it. Minimum 30 characters required.</p>
+            <textarea id="reachoutDesc" class="reachout-textarea" placeholder="e.g. My black Samsung Galaxy earbuds with a cracked case lid, left earbud has a small red dot sticker on it. Lost near the canteen on Tuesday around 1pm, was in a grey pouch..." rows="5"></textarea>
+            <div class="char-counter"><span id="charCount">0</span> / 30 minimum</div>
+            <button onclick="submitReachout('{{ item.uid }}')" class="btn-reachout" id="reachoutBtn">Submit Reach-Out →</button>
+            <div id="reachoutMsg" class="reachout-feedback"></div>
+          </div>
+          {% endif %}
+        {% else %}
+        <div class="guest-reachout">
+          <div class="guest-icon">🔐</div>
+          <h3>Is This Yours?</h3>
+          <p>Create a free account to submit a reach-out request. You will need to provide a genuine description to prove the item belongs to you.</p>
+          <a href="{{ url_for('register') }}" class="btn-primary">Create Account</a>
+          <a href="{{ url_for('login') }}" class="btn-secondary">Already registered? Login</a>
+        </div>
+        {% endif %}
+      {% else %}
+      <div class="closed-note">This item has been marked as returned to its owner.</div>
+      {% endif %}
+
+      <div class="reachouts-section">
+        <div class="reachouts-title">Reach-Outs <span class="count-badge">{{ reachouts|length }}</span></div>
+        {% if reachouts %}
+        {% for r in reachouts %}
+        <div class="reachout-item {% if current_user.is_authenticated and r.user_id == current_user.id %}mine{% endif %}">
+          <div class="ro-header">
+            <span class="ro-avatar">{{ r.rname[0].upper() }}</span>
+            <div>
+              <div class="ro-name">{{ r.rname }}</div>
+              <div class="ro-meta">{{ r.rroll }} · {{ r.rdept }} · {{ r.created_at[:16] }}</div>
+            </div>
+          </div>
+          {% if current_user.is_authenticated and (current_user.id == item.user_id or current_user.id == r.user_id) %}
+          <p class="ro-desc">{{ r.description }}</p>
+          {% else %}
+          <p class="ro-desc">{{ r.description[:20] }}... <span class="blur-hint">[Login as finder or submitter to read full description]</span></p>
+          {% endif %}
+        </div>
+        {% endfor %}
+        {% else %}
+        <div class="no-reachouts">No reach-outs submitted yet.</div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+function submitReachout(uid) {
+  const desc = document.getElementById('reachoutDesc').value.trim();
+  const msg = document.getElementById('reachoutMsg');
+  if (desc.length < 30) {
+    msg.className = 'reachout-feedback error';
+    msg.textContent = 'Please write at least 30 characters describing your item.';
+    return;
+  }
+  const btn = document.getElementById('reachoutBtn');
+  btn.disabled = true;
+  btn.textContent = 'Submitting...';
+  const fd = new FormData();
+  fd.append('description', desc);
+  fetch('/reachout/' + uid, { method: 'POST', body: fd })
+    .then(r => r.json())
+    .then(d => {
+      msg.className = 'reachout-feedback ' + (d.ok ? 'success' : 'error');
+      msg.textContent = d.msg;
+      if (d.ok) { setTimeout(() => location.reload(), 1500); }
+      else { btn.disabled = false; btn.textContent = 'Submit Reach-Out →'; }
+    });
+}
+function closeItem(uid) {
+  if (!confirm('Mark this item as returned to its owner? This will close the listing.')) return;
+  fetch('/item/close/' + uid, { method: 'POST' }).then(r => r.json()).then(d => { if (d.ok) location.reload(); });
+}
+function deleteItem(uid) {
+  if (!confirm('Permanently delete this post? This cannot be undone.')) return;
+  fetch('/item/delete/' + uid, { method: 'POST' }).then(r => r.json()).then(d => { if (d.ok) window.location = '/'; });
+}
+const ta = document.getElementById('reachoutDesc');
+const cc = document.getElementById('charCount');
+if (ta && cc) {
+  ta.addEventListener('input', () => {
+    cc.textContent = ta.value.length;
+    cc.style.color = ta.value.length >= 30 ? '#2A6644' : '#7A6E5C';
+  });
+}
+</script>
+{% endblock %}

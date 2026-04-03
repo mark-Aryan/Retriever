@@ -1,0 +1,104 @@
+{% extends 'base.html' %}
+{% block title %}Post Found Item · CodeXploit Campus Desk{% endblock %}
+{% block content %}
+<div class="form-page">
+  <div class="form-card">
+    <div class="form-header">
+      <div class="form-icon">📦</div>
+      <h1>Post a Found Item</h1>
+      <p>You found something on campus. Post it here so the rightful owner can reach out and claim it through CodeXploit Campus Desk.</p>
+    </div>
+    <form method="POST" enctype="multipart/form-data" class="upload-form" id="uploadForm">
+      <div class="form-group">
+        <label>Item Name *</label>
+        <input type="text" name="title" placeholder="e.g. Black OnePlus Earbuds, Blue Notebook, Leather Wallet" required maxlength="100" class="form-input">
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Category *</label>
+          <select name="category" required class="form-input">
+            <option value="">Select category</option>
+            <option value="Electronics">Electronics</option>
+            <option value="Books & Notes">Books &amp; Notes</option>
+            <option value="Clothing">Clothing</option>
+            <option value="Bag & Wallet">Bag &amp; Wallet</option>
+            <option value="Keys">Keys</option>
+            <option value="ID & Cards">ID &amp; Cards</option>
+            <option value="Stationery">Stationery</option>
+            <option value="Sports">Sports</option>
+            <option value="Other">Other</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Where Found *</label>
+          <select name="location" required class="form-input">
+            <option value="">Select location</option>
+            <option value="Library">Library</option>
+            <option value="Canteen">Canteen</option>
+            <option value="Classroom Block A">Classroom Block A</option>
+            <option value="Classroom Block B">Classroom Block B</option>
+            <option value="Computer Lab">Computer Lab</option>
+            <option value="Science Lab">Science Lab</option>
+            <option value="Auditorium">Auditorium</option>
+            <option value="Sports Ground">Sports Ground</option>
+            <option value="Parking Area">Parking Area</option>
+            <option value="Hostel Area">Hostel Area</option>
+            <option value="Admin Block">Admin Block</option>
+            <option value="Reception / Main Gate">Reception / Main Gate</option>
+            <option value="Other">Other</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Detailed Description *</label>
+        <textarea name="description" required rows="4" placeholder="Describe what you found. Include colour, brand, visible markings, condition, exact location and time found..." class="form-input" maxlength="1000"></textarea>
+      </div>
+      <div class="form-group">
+        <label>Upload Item Photo *</label>
+        <div class="upload-zone" id="uploadZone" onclick="document.getElementById('imgInput').click()">
+          <div class="upload-icon" id="uploadIcon">📷</div>
+          <div class="upload-text" id="uploadText">Click to upload a photo of the item<br><span>JPG, PNG, GIF, WEBP · Maximum 10MB</span></div>
+          <img id="imgPreview" class="img-preview" style="display:none">
+        </div>
+        <input type="file" name="image" id="imgInput" accept="image/*" required style="display:none" onchange="previewImg(this)">
+      </div>
+      <div class="form-notice">
+        <span>ℹ</span>
+        <span>Your name, roll number, department, phone and email will be <strong>publicly visible</strong> on this post so the owner can contact you directly.</span>
+      </div>
+      <button type="submit" class="btn-submit" id="submitBtn">Post Found Item →</button>
+    </form>
+  </div>
+</div>
+<script>
+function previewImg(input) {
+  const file = input.files[0];
+  if (!file) return;
+  const preview = document.getElementById('imgPreview');
+  const icon = document.getElementById('uploadIcon');
+  const text = document.getElementById('uploadText');
+  const reader = new FileReader();
+  reader.onload = e => {
+    preview.src = e.target.result;
+    preview.style.display = 'block';
+    icon.style.display = 'none';
+    text.style.display = 'none';
+  };
+  reader.readAsDataURL(file);
+}
+document.getElementById('uploadForm').addEventListener('submit', function() {
+  const btn = document.getElementById('submitBtn');
+  btn.disabled = true;
+  btn.textContent = 'Uploading...';
+});
+const zone = document.getElementById('uploadZone');
+zone.addEventListener('dragover', e => { e.preventDefault(); zone.classList.add('drag-over'); });
+zone.addEventListener('dragleave', () => zone.classList.remove('drag-over'));
+zone.addEventListener('drop', e => {
+  e.preventDefault();
+  zone.classList.remove('drag-over');
+  const files = e.dataTransfer.files;
+  if (files[0]) { document.getElementById('imgInput').files = files; previewImg(document.getElementById('imgInput')); }
+});
+</script>
+{% endblock %}
