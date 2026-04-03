@@ -1,6 +1,6 @@
 <div align="center">
 
-<a href="https://github.com/yourusername/retriever">
+<a href="https://github.com/mark-Aryan/Retriever">
   <img src="https://readme-typing-svg.demolab.com?font=Syne&weight=800&size=42&duration=3000&pause=1000&color=C41E1E&center=true&vCenter=true&width=700&lines=Retriever;Campus+Lost+%26+Found;Find+What+Matters." alt="Retriever - Campus Lost and Found Platform" />
 </a>
 
@@ -141,7 +141,7 @@ Crafted with semantic HTML5 and pure CSS3 — no frameworks, no bloat. A vintage
 
 ```bash
 # 1. Clone the repository
-git clone https://github.com/yourusername/retriever.git
+git clone https://github.com/mark-Aryan/Retriever.git
 cd retriever
 
 # 2. (Recommended) Create and activate a virtual environment
@@ -338,7 +338,7 @@ Distributed under the **MIT License**. See [LICENSE](LICENSE) for full terms.
 *Founder, CodeXploit.in · Campus Technology Initiative*
 
 [![Website](https://img.shields.io/badge/Website-codexploit.in-C41E1E?style=for-the-badge&logo=firefox&logoColor=white)](https://codexploit.in)
-[![GitHub](https://img.shields.io/badge/GitHub-@yourusername-181717?style=for-the-badge&logo=github&logoColor=white)](https://github.com/yourusername)
+[![GitHub](https://img.shields.io/badge/GitHub-@mark-Aryan-181717?style=for-the-badge&logo=github&logoColor=white)](https://github.com/mark-Aryan)
 [![LinkedIn](https://img.shields.io/badge/LinkedIn-Connect-0A66C2?style=for-the-badge&logo=linkedin&logoColor=white)](https://linkedin.com/in/yourprofile)
 
 </div>
